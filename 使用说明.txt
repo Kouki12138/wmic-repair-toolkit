@@ -1,0 +1,45 @@
+﻿WMIC 离线修复工具包   使用说明
+=================================
+
+适用系统：Windows 10 / Windows 11（64 位）
+
+【要解决的问题】
+  电脑里 C:\Windows\System32\wbem\wmic.exe 不见了（或运行 wmic 时报
+  “Invalid XSL format (or) file name.”、“拒绝访问”等），导致一些
+  需要读取机器信息的软件（如加工/CAD/CAM、授权类软件）无法使用。
+
+【使用方法】
+  1. 把整个“WMIC修复工具包”文件夹复制到出问题的那台电脑
+     （U 盘、局域网共享、微信/QQ 传文件都可以）。
+  2. 在那台电脑上双击文件夹里的 run-repair.cmd
+  3. 屏幕会弹出“用户账户控制”，点“是”。
+  4. 等脚本自己跑完（一般 1~3 分钟，会显示进度），最后会提示
+     “WMIC 已可正常使用”。
+  5. 重新打开之前报错的软件即可，不需要重启电脑。
+
+【脚本做了什么】
+  优先使用那台电脑自己的 Windows 组件库（C:\Windows\WinSxS）里
+  的同版本文件还原；如果组件库里也没有，就用本工具包 payload
+  文件夹里带的文件还原。还原内容包括：
+    - wmic.exe（64 位和 32 位）
+    - 语言资源 wmic.exe.mui（中文/英文）
+    - 输出模板 texttable.xsl、textvaluelist.xsl、rawxml.xsl、
+      xsl-mappings.xml、csv.xsl、hform.xsl、htable.xsl、mof.xsl、xml.xsl
+    - cli.mof、cliegaliases.mof
+  最后自动运行 wmic os get caption 和 wmic csproduct get uuid 做验证。
+
+【如果还是不行】
+  把下面这个日志文件发回给我：
+    桌面\wmic-repair-log.txt
+  里面记录了每一步的检测结果和报错原因，一看就知道卡在哪里。
+
+【提示】
+  - 如果电脑装了“系统优化 / 安全加固”类工具，它可能为了防黑客
+    再次删除 wmic.exe，建议把 WMIC 加入白名单，或者卸载这类工具。
+  - 离线包里的文件取自 Windows 11 25H2（64 位），适用于 Windows 10 /
+    Windows 11 的 64 位系统；如果那台电脑是 ARM 架构（骁龙等），
+    脚本会提示，需要另行处理，请把日志发给我。
+  - 脚本能自动分辨补丁版本：即使那台电脑的组件库版本号和本机不一样，
+    它也会自动找到对应版本的 WMIC 文件，不会因为版本号不同而失败。
+  - 只做检查、不修改文件：可以在 PowerShell 里执行
+      powershell -NoProfile -ExecutionPolicy Bypass -File "修复包路径\repair-wmic.ps1" -DryRun
